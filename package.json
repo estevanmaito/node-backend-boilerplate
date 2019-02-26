@@ -1,0 +1,39 @@
+{
+  "name": "backend-boilerplate",
+  "version": "1.0.0",
+  "description": "A Node.js, Express, GraphQL, MongoDB backend boilerplate",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/estevanmaito/node-backend-boilerplate.git"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "graphql",
+    "mongo",
+    "mongoose",
+    "redis",
+    "test",
+    "boilerplate",
+    "backend",
+    "docker",
+    "prettier"
+  ],
+  "author": "Estevan Maito",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/estevanmaito/node-backend-boilerplate/issues"
+  },
+  "homepage": "https://github.com/estevanmaito/node-backend-boilerplate#readme",
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  },
+  "dependencies": {
+    "graphql-yoga": "^1.17.4"
+  }
+}
