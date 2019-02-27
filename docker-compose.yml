@@ -8,3 +8,14 @@ services:
       - "4000:4000"
     volumes:
       - .:/usr/app
+    depends_on:
+      - mongodb
+  mongodb:
+    image: mongo:4.0.6
+    command: mongod --smallfiles
+    environment:
+      - MONGO_DATA_DIR=/data/db
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data/db:/data/db
