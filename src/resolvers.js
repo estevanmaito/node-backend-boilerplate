@@ -5,14 +5,15 @@ const resolvers = {
     hello: (_, { name }) => `Hello ${name || "Mundo"}`
   },
   Mutation: {
-    register: async (_, { email, password }) => {
-      await models.User.create({
+    register: (_, { email, password }) => {
+      const user = new models.User({
         email,
         password
-      }),
-        err => {
-          if (err) throw new Error("Cannot save user!");
-        };
+      });
+
+      user.save(err => {
+        if (err) throw new Error("Cannot save user!");
+      });
 
       return true;
     }

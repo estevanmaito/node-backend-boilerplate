@@ -1,9 +1,7 @@
 const mongoose = require("mongoose");
 const User = require("./User");
 
-// mongoose.Promise = global.Promise
-
-const startDB = ({ url, db }) =>
+const startDB = ({ db }) =>
   mongoose.connect(`mongodb://mongodb:27017/${db}`, { useNewUrlParser: true });
 
 const models = {
