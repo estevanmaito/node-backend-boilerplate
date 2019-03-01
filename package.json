@@ -31,6 +31,7 @@
   },
   "homepage": "https://github.com/estevanmaito/node-backend-boilerplate#readme",
   "devDependencies": {
+    "jest": "^24.1.0",
     "nodemon": "^1.18.10"
   },
   "dependencies": {

@@ -1,14 +1,22 @@
 const { GraphQLServer } = require("graphql-yoga");
-const mongoose = require("mongoose");
 const resolvers = require("./resolvers");
+const startDB = require("./db").startDB;
+const models = require("./db").models;
 
-mongoose.connect(`mongodb://mongodb:27017/nodeBackend`, {
-  useNewUrlParser: true
+const db = startDB({
+  url: "mongodb:27017",
+  db: "nodeBackend"
 });
+
+const context = {
+  db,
+  models
+};
 
 const server = new GraphQLServer({
   typeDefs: `${__dirname}/schema.graphql`,
-  resolvers
+  resolvers,
+  context
 });
 
 server.start(() => console.log("Server is running on http://localhost:4000"));
