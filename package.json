@@ -2,15 +2,31 @@
   "name": "backend-boilerplate",
   "version": "1.0.0",
   "description": "A Node.js, Express, GraphQL, MongoDB backend boilerplate",
+  "author": "Estevan Maito",
+  "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test-coverage": "jest --collectCoverageFrom=src/** --coverage src",
     "start": "nodemon src/server.js"
+  },
+  "devDependencies": {
+    "jest": "^24.1.0",
+    "nodemon": "^1.18.10"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "graphql-yoga": "^1.17.4",
+    "mongoose": "^5.4.15"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/estevanmaito/node-backend-boilerplate.git"
   },
+  "bugs": {
+    "url": "https://github.com/estevanmaito/node-backend-boilerplate/issues"
+  },
+  "homepage": "https://github.com/estevanmaito/node-backend-boilerplate#readme",
   "keywords": [
     "node",
     "express",
@@ -23,20 +39,5 @@
     "backend",
     "docker",
     "prettier"
-  ],
-  "author": "Estevan Maito",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/estevanmaito/node-backend-boilerplate/issues"
-  },
-  "homepage": "https://github.com/estevanmaito/node-backend-boilerplate#readme",
-  "devDependencies": {
-    "jest": "^24.1.0",
-    "nodemon": "^1.18.10"
-  },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "graphql-yoga": "^1.17.4",
-    "mongoose": "^5.4.15"
-  }
+  ]
 }
