@@ -3,10 +3,10 @@ type Query {
 }
 
 type Error {
-  field: String!
+  path: String!
   message: String!
 }
 
 type Mutation {
-  register(email: String!, password: String!): Error
+  register(email: String!, password: String!): [Error!]
 }
