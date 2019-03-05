@@ -1,7 +1,6 @@
 const { GraphQLServer } = require("graphql-yoga");
 const resolvers = require("./resolvers");
-const startDB = require("./db").startDB;
-const models = require("./db").models;
+const { startDB, models } = require("./db");
 
 const db = startDB({
   url: "mongodb:27017",
@@ -19,4 +18,12 @@ const server = new GraphQLServer({
   context
 });
 
-server.start(() => console.log("Server is running on http://localhost:4000"));
+const options = {
+  port: 4000,
+  endpoint: "/graphql",
+  playground: "/playground"
+};
+
+server.start(options, ({ port }) =>
+  console.log(`Server is running on http://localhost:${port}`)
+);
