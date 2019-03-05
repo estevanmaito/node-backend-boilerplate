@@ -1,6 +1,7 @@
 const yup = require("yup");
 const { EMAIL_DUPLICATE } = require("./utils/errorMessages");
 const { formatErrorMessage } = require("./utils/formatErrorMessage");
+const { createConfirmEmailURL } = require("./utils/createConfirmEmailURL");
 
 const schema = yup.object().shape({
   email: yup
@@ -19,7 +20,7 @@ const resolvers = {
     hello: (_, { name }) => `Hello ${name || "Mundo"}`
   },
   Mutation: {
-    register: async (_, { email, password }, { models }) => {
+    register: async (_, { email, password }, { models, redis, url }) => {
       // validate fields
       try {
         await schema.validate({ email, password }, { abortEarly: false });
@@ -45,8 +46,11 @@ const resolvers = {
         password
       });
 
-      user.save(err => {
+      user.save(async (err, user) => {
         if (err) throw new Error("Cannot save user!");
+
+        const link = await createConfirmEmailURL(url, user.id, redis);
+        console.log(link);
       });
 
       return null;
