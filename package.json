@@ -6,11 +6,12 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "test-coverage": "jest --collectCoverageFrom=src/** --coverage src",
-    "start": "nodemon src/server.js"
+    "test": "NODE_ENV=test jest",
+    "test-coverage": "NODE_ENV=test jest --collectCoverageFrom=src/** --coverage src",
+    "start": "NODE_ENV=development nodemon src/server.js"
   },
   "devDependencies": {
+    "graphql-request": "^1.8.2",
     "jest": "^24.1.0",
     "nodemon": "^1.18.10"
   },
