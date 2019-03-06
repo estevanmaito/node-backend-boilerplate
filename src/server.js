@@ -11,10 +11,6 @@ mongoose.connect(`${process.env.MONGO_URL}/${process.env.MONGO_DB}`, {
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hello world!");
-});
-
 // routes
 app.post("/signup", userController.postSignup);
 app.get("/confirm/:id", userController.getConfirmEmail);
