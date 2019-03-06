@@ -11,16 +11,16 @@
     "start": "NODE_ENV=development nodemon src/server.js"
   },
   "devDependencies": {
-    "graphql-request": "^1.8.2",
     "jest": "^24.1.0",
     "nodemon": "^1.18.10"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "dotenv": "^6.2.0",
-    "graphql-yoga": "^1.17.4",
+    "express": "^4.16.4",
     "ioredis": "^4.6.2",
     "mongoose": "^5.4.15",
+    "nodemailer": "^5.1.1",
     "uuid": "^3.3.2",
     "yup": "^0.26.10"
   },
