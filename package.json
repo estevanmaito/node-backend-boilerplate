@@ -21,6 +21,7 @@
     "ioredis": "^4.6.2",
     "mongoose": "^5.4.15",
     "nodemailer": "^5.1.1",
+    "nodemailer-mailgun-transport": "^1.4.0",
     "uuid": "^3.3.2",
     "yup": "^0.26.10"
   },

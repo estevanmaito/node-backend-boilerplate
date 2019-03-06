@@ -28,7 +28,6 @@ exports.postSignup = async (req, res) => {
 
   // checks if user already exists
   const userExists = await User.findOne({ email });
-  console.log(userExists);
 
   if (userExists) {
     return res.json([
@@ -49,13 +48,13 @@ exports.postSignup = async (req, res) => {
     if (err) throw new Error("Cannot save user!");
 
     const link = await createConfirmEmailURL(req.hostname, user.id, redis);
-    res.send(link);
-    // const options = {
-    //   to: user.email,
-    //   subject: "Verify your account",
-    //   url: link
-    // };
-    // await sendConfirmationEmail(options);
+    const options = {
+      to: user.email,
+      subject: "Verify your account",
+      url: link
+    };
+    await sendConfirmationEmail(options);
+    res.send("Check your email to verify your account");
   });
 };
 
