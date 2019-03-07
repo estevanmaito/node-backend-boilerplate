@@ -13,11 +13,8 @@
 
 - Docker
 - Express
-- GraphQL
 - MongoDB
 - Mongoose
 - Redis
 - Jest
 - Nodemailer
-- Prettier
-- Nodemon

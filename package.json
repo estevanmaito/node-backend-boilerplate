@@ -1,7 +1,7 @@
 {
   "name": "backend-boilerplate",
   "version": "1.0.0",
-  "description": "A Node.js, Express, GraphQL, MongoDB backend boilerplate",
+  "description": "A Node.js, Express, Docker, Redis & MongoDB backend boilerplate",
   "author": "Estevan Maito",
   "license": "MIT",
   "main": "index.js",
@@ -37,7 +37,6 @@
   "keywords": [
     "node",
     "express",
-    "graphql",
     "mongo",
     "mongoose",
     "redis",
