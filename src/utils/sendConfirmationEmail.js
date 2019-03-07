@@ -9,11 +9,11 @@ const options = {
 
 const client = nodemailer.createTransport(transport(options));
 
-module.exports.sendConfirmationEmail = async ({ to, subject, url }) => {
+module.exports.sendConfirmationEmail = async ({ to, url }) => {
   const msg = {
-    from: "estevan@unna.tech",
+    from: "Your Name <you@youremail.com>",
     to,
-    subject,
+    subject: "Verify your account",
     html: `Visit the link below to verify your account:<br>${url}`
   };
   await client.sendMail(msg, (err, info) => {

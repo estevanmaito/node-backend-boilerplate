@@ -57,7 +57,6 @@ exports.postSignup = async (req, res) => {
     const link = await createConfirmEmailURL(req.hostname, user.id, redis);
     const options = {
       to: user.email,
-      subject: "Verify your account",
       url: link
     };
     await sendConfirmationEmail(options);
