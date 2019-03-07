@@ -2,7 +2,8 @@ const yup = require("yup");
 const {
   EMAIL_DUPLICATE,
   LOGIN_INVALID,
-  LOGIN_NOT_VERIFIED
+  LOGIN_NOT_VERIFIED,
+  LOGIN_ALREADY_VERIFIED
 } = require("../utils/errorMessages");
 const { createConfirmEmailURL } = require("../utils/createConfirmEmailURL");
 const { sendConfirmationEmail } = require("../utils/sendConfirmationEmail");
@@ -75,6 +76,7 @@ exports.getConfirmationEmail = async (req, res) => {
       isVerified: true
     });
     user.save();
+    await redis.del(id);
     return res.send("Email validated");
   } else {
     return res.send("Invalid code");
@@ -84,13 +86,47 @@ exports.getConfirmationEmail = async (req, res) => {
 /** POST /resend-confirmation
  * Resend account confirmation
  */
-exports.postResendConfirmation = async (req, res) => {};
+exports.postResendConfirmation = async (req, res) => {
+  const email = req.body.email;
+
+  // TODO: ADD VALIDATION
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.json([
+      {
+        path: "email",
+        message: LOGIN_INVALID
+      }
+    ]);
+  }
+
+  if (user.isVerified) {
+    return res.json([
+      {
+        path: "email",
+        message: LOGIN_ALREADY_VERIFIED
+      }
+    ]);
+  }
+
+  const link = await createConfirmEmailURL(req.hostname, user.id, redis);
+  const options = {
+    to: user.email,
+    url: link
+  };
+  await sendConfirmationEmail(options);
+  res.send("Check your email to verify your account");
+};
 
 /** POST /login
  * Sign in user
  */
 exports.postLogin = async (req, res) => {
   const { email, password } = req.body;
+
+  // TODO: ADD VALIDATION
 
   const user = await User.findOne({ email });
 
