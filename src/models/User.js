@@ -5,7 +5,7 @@ const SALT_ROUNDS = 10;
 const UserSchema = new mongoose.Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
-  confirmed: { type: Boolean, default: false }
+  isVerified: { type: Boolean, default: false }
 });
 
 UserSchema.pre("save", function(next) {

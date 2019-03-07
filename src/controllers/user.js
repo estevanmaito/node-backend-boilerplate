@@ -1,5 +1,9 @@
 const yup = require("yup");
-const { EMAIL_DUPLICATE } = require("../utils/errorMessages");
+const {
+  EMAIL_DUPLICATE,
+  LOGIN_INVALID,
+  LOGIN_NOT_VERIFIED
+} = require("../utils/errorMessages");
 const { createConfirmEmailURL } = require("../utils/createConfirmEmailURL");
 const { sendConfirmationEmail } = require("../utils/sendConfirmationEmail");
 const { formatErrorMessage } = require("../utils/formatErrorMessage");
@@ -18,6 +22,9 @@ const schema = yup.object().shape({
     .max(40)
 });
 
+/** POST /signup
+ * Create a new local account
+ */
 exports.postSignup = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -58,16 +65,64 @@ exports.postSignup = async (req, res) => {
   });
 };
 
-exports.getConfirmEmail = async (req, res) => {
+/** GET /confirmation/:id
+ * Verify user account
+ */
+exports.getConfirmationEmail = async (req, res) => {
   const id = req.params.id;
   const userId = await redis.get(id);
   if (userId) {
     const user = await User.findByIdAndUpdate(userId, {
-      confirmed: true
+      isVerified: true
     });
     user.save();
     return res.send("Email validated");
   } else {
     return res.send("Invalid code");
   }
+};
+
+/** POST /resend-confirmation
+ * Resend account confirmation
+ */
+exports.postResendConfirmation = async (req, res) => {};
+
+/** POST /login
+ * Sign in user
+ */
+exports.postLogin = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.json([
+      {
+        path: "email",
+        message: LOGIN_INVALID
+      }
+    ]);
+  }
+
+  if (!user.isVerified) {
+    return res.json([
+      {
+        path: "email",
+        message: LOGIN_NOT_VERIFIED
+      }
+    ]);
+  }
+
+  const hasValidPassword = await user.comparePassword(password, user.password);
+
+  if (!hasValidPassword) {
+    return res.json([
+      {
+        path: "email",
+        message: LOGIN_INVALID
+      }
+    ]);
+  }
+
+  return res.json({ login: "successful" });
 };
