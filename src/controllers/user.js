@@ -87,7 +87,16 @@ exports.getConfirmationEmail = async (req, res) => {
 exports.postResendConfirmation = async (req, res) => {
   const email = req.body.email;
 
-  // TODO: ADD VALIDATION
+  // invalid email format - stop processing
+  const schema = yup.object().shape({
+    email: yup.string().min(4).max(100).email() // prettier-ignore
+  });
+
+  try {
+    await schema.validate({ email }, { abortEarly: false });
+  } catch (e) {
+    return res.json(formatErrorMessage(e));
+  }
 
   const user = await User.findOne({ email });
 
