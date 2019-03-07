@@ -9,32 +9,26 @@ const { createConfirmEmailURL } = require("../utils/createConfirmEmailURL");
 const { sendConfirmationEmail } = require("../utils/sendConfirmationEmail");
 const { formatErrorMessage } = require("../utils/formatErrorMessage");
 const redis = require("../utils/redis")();
+const uuidValidate = require("uuid-validate");
 const User = require("../models/User");
-
-const schema = yup.object().shape({
-  email: yup
-    .string()
-    .min(4)
-    .max(100)
-    .email(),
-  password: yup
-    .string()
-    .min(6)
-    .max(40)
-});
 
 /** POST /signup
  * Create a new local account
  */
 exports.postSignup = async (req, res) => {
+  const signupSchema = yup.object().shape({
+    email: yup.string().min(4).max(100).email(), // prettier-ignore
+    password: yup.string().min(6).max(40) // prettier-ignore
+  });
+
   const { email, password } = req.body;
+
   try {
-    await schema.validate({ email, password }, { abortEarly: false });
+    await signupSchema.validate({ email, password }, { abortEarly: false });
   } catch (e) {
     return res.json(formatErrorMessage(e));
   }
 
-  // checks if user already exists
   const userExists = await User.findOne({ email });
 
   if (userExists) {
@@ -46,7 +40,6 @@ exports.postSignup = async (req, res) => {
     ]);
   }
 
-  // create a new user
   const user = new User({
     email,
     password
@@ -69,17 +62,22 @@ exports.postSignup = async (req, res) => {
  * Verify user account
  */
 exports.getConfirmationEmail = async (req, res) => {
-  const id = req.params.id;
-  const userId = await redis.get(id);
+  const uuid = req.params.id;
+  const isValidUUID = uuidValidate(uuid);
+
+  if (!isValidUUID) return res.send("Invalid validation code");
+
+  const userId = await redis.get(uuid);
+
   if (userId) {
     const user = await User.findByIdAndUpdate(userId, {
       isVerified: true
     });
     user.save();
-    await redis.del(id);
+    await redis.del(uuid);
     return res.send("Email validated");
   } else {
-    return res.send("Invalid code");
+    return res.send("Invalid validation code");
   }
 };
 
