@@ -133,7 +133,17 @@ exports.postResendConfirmation = async (req, res) => {
 exports.postLogin = async (req, res) => {
   const { email, password } = req.body;
 
-  // TODO: ADD VALIDATION
+  // don't even botter the DB if conditions not met
+  const schema = yup.object().shape({
+    email: yup.string().min(4).max(100).email(), // prettier-ignore
+    password: yup.string().min(6).max(40) // prettier-ignore
+  });
+
+  try {
+    await schema.validate({ email, password }, { abortEarly: false });
+  } catch (e) {
+    return res.json(formatErrorMessage(e));
+  }
 
   const user = await User.findOne({ email });
 
