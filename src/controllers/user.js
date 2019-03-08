@@ -62,10 +62,10 @@ exports.postSignup = async (req, res) => {
   });
 };
 
-/** GET /confirmation/:id
+/** POST /confirmation/:id
  * Verify user account
  */
-exports.getConfirmationEmail = async (req, res) => {
+exports.postConfirmationEmail = async (req, res) => {
   const uuid = req.params.id;
 
   if (!isValidUUID(uuid)) return res.send("Invalid validation code");

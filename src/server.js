@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const session = require("express-session");
 const RedisStore = require("connect-redis")(session);
-const redis = require("./utils/redis");
 
 const userController = require("./controllers/user");
 
@@ -35,7 +34,7 @@ app.use(express.json());
 
 // routes
 app.post("/signup", userController.postSignup);
-app.get("/confirmation/:id", userController.getConfirmationEmail);
+app.post("/confirmation/:id", userController.postConfirmationEmail);
 app.post("/resend-confirmation", userController.postResendConfirmation);
 app.post("/login", userController.postLogin);
 app.post("/logout", userController.postLogout);
