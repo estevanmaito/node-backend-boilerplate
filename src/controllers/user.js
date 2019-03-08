@@ -180,3 +180,14 @@ exports.postLogin = async (req, res) => {
 
   return res.json({ login: "successful" });
 };
+
+/** POST /logout
+ * Sign out user
+ */
+exports.postLogout = async (req, res) => {
+  req.session.destroy(err => {
+    if (err) return res.send("Error on logout, try again");
+
+    return res.send("Logged out successfuly");
+  });
+};
