@@ -4,12 +4,15 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const session = require("express-session");
 const RedisStore = require("connect-redis")(session);
+const helmet = require("helmet");
 
 const userController = require("./controllers/user");
 
 mongoose.connect(`${process.env.MONGO_URL}/${process.env.MONGO_DB}`, {
   useNewUrlParser: true
 });
+
+app.use(helmet());
 
 const ONE_WEEK = 1000 * 60 * 60 * 24 * 7;
 app.use(

@@ -214,6 +214,7 @@ exports.postForgotPassword = async (req, res) => {
     ]);
   }
 
+  // TODO: bcrypt uuid token
   const token = await createToken(user.id);
 
   const message = {
