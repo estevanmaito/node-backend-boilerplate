@@ -176,5 +176,7 @@ exports.postLogin = async (req, res) => {
     ]);
   }
 
+  req.session.userId = user.id;
+
   return res.json({ login: "successful" });
 };
