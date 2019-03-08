@@ -5,10 +5,10 @@ const {
   LOGIN_NOT_VERIFIED,
   LOGIN_ALREADY_VERIFIED
 } = require("../utils/errorMessages");
-const { createConfirmEmailURL } = require("../utils/createConfirmEmailURL");
-const { sendConfirmationEmail } = require("../utils/sendConfirmationEmail");
+const { sendEmail } = require("../utils/sendEmail");
 const { formatErrorMessage } = require("../utils/formatErrorMessage");
 const redis = require("../utils/redis")();
+const uuid = require("uuid/v4");
 const uuidValidate = require("uuid-validate");
 const User = require("../models/User");
 
@@ -48,12 +48,21 @@ exports.postSignup = async (req, res) => {
   user.save(async (err, user) => {
     if (err) throw new Error("Cannot save user!");
 
-    const link = await createConfirmEmailURL(req.hostname, user.id, redis);
-    const options = {
+    const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
+    const token = uuid();
+    await redis.set(token, user.id, "ex", ONE_DAY_IN_SECONDS);
+
+    const message = {
+      from: "Your Name <your@email.com>",
       to: user.email,
-      url: link
+      subject: "Verify your account",
+      html: `<p>Click the link below to verify your email</p>
+      <br>
+      <a href="${
+        req.hostname
+      }/confirmation/${token}">Click here to verify your account</a>`
     };
-    await sendConfirmationEmail(options);
+    await sendEmail(message);
     res.send("Check your email to verify your account");
   });
 };
@@ -118,12 +127,21 @@ exports.postResendConfirmation = async (req, res) => {
     ]);
   }
 
-  const link = await createConfirmEmailURL(req.hostname, user.id, redis);
-  const options = {
+  const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
+  const token = uuid();
+  await redis.set(token, user.id, "ex", ONE_DAY_IN_SECONDS);
+
+  const message = {
+    from: "Your Name <your@email.com>",
     to: user.email,
-    url: link
+    subject: "Verify your account",
+    html: `<p>Click the link below to verify your email</p>
+    <br>
+    <a href="${
+      req.hostname
+    }/confirmation/${token}">Click here to verify your account</a>`
   };
-  await sendConfirmationEmail(options);
+  await sendEmail(message);
   res.send("Check your email to verify your account");
 };
 
@@ -191,3 +209,54 @@ exports.postLogout = async (req, res) => {
     return res.send("Logged out successfuly");
   });
 };
+
+/** POST /forgot-password
+ * Send password reset email
+ */
+exports.postForgotPassword = async (req, res) => {
+  const email = req.body.email;
+
+  // don't even botter the DB if conditions not met
+  const schema = yup.object().shape({
+    email: yup.string().min(4).max(100).email() // prettier-ignore
+  });
+
+  try {
+    await schema.validate({ email }, { abortEarly: false });
+  } catch (e) {
+    return res.json(formatErrorMessage(e));
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.json([
+      {
+        path: "email",
+        message: LOGIN_INVALID
+      }
+    ]);
+  }
+
+  const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
+  const token = uuid();
+  await redis.set(token, user.id, "ex", ONE_DAY_IN_SECONDS);
+
+  const message = {
+    from: "Your Name <your@email.com>",
+    to: user.email,
+    subject: "Password reset",
+    html: `<p>Click the link below to reset your account's password.</p>
+    <br>
+    <a href="${
+      req.hostname
+    }/reset-password/${token}">Click here to reset your password</a>`
+  };
+  await sendEmail(message);
+  res.send("Check your email to reset your password");
+};
+
+/** POST /reset-password/:id
+ * Verify password reset token and update password
+ */
+exports.postResetPassword = async (req, res) => {};

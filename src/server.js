@@ -39,6 +39,8 @@ app.get("/confirmation/:id", userController.getConfirmationEmail);
 app.post("/resend-confirmation", userController.postResendConfirmation);
 app.post("/login", userController.postLogin);
 app.post("/logout", userController.postLogout);
+app.post("/forgot-password", userController.postForgotPassword);
+app.post("/reset-password/:id", userController.postResetPassword);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running at http://localhost:${process.env.PORT}`);
