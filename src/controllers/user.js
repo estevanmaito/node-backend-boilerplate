@@ -1,4 +1,6 @@
-const yup = require("yup");
+const redis = require("../utils/redis")();
+const isValidUUID = require("uuid-validate");
+
 const {
   EMAIL_DUPLICATE,
   LOGIN_INVALID,
@@ -7,24 +9,19 @@ const {
 } = require("../utils/errorMessages");
 const { sendEmail } = require("../utils/sendEmail");
 const { formatErrorMessage } = require("../utils/formatErrorMessage");
-const redis = require("../utils/redis")();
-const uuid = require("uuid/v4");
-const uuidValidate = require("uuid-validate");
+const { validateInput } = require("../utils/validateInput");
+const { createToken } = require("../utils/createToken");
+
 const User = require("../models/User");
 
 /** POST /signup
  * Create a new local account
  */
 exports.postSignup = async (req, res) => {
-  const signupSchema = yup.object().shape({
-    email: yup.string().min(4).max(100).email(), // prettier-ignore
-    password: yup.string().min(6).max(40) // prettier-ignore
-  });
-
   const { email, password } = req.body;
 
   try {
-    await signupSchema.validate({ email, password }, { abortEarly: false });
+    await validateInput({ email, password });
   } catch (e) {
     return res.json(formatErrorMessage(e));
   }
@@ -48,9 +45,7 @@ exports.postSignup = async (req, res) => {
   user.save(async (err, user) => {
     if (err) throw new Error("Cannot save user!");
 
-    const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
-    const token = uuid();
-    await redis.set(token, user.id, "ex", ONE_DAY_IN_SECONDS);
+    const token = await createToken(user.id);
 
     const message = {
       from: "Your Name <your@email.com>",
@@ -72,9 +67,8 @@ exports.postSignup = async (req, res) => {
  */
 exports.getConfirmationEmail = async (req, res) => {
   const uuid = req.params.id;
-  const isValidUUID = uuidValidate(uuid);
 
-  if (!isValidUUID) return res.send("Invalid validation code");
+  if (!isValidUUID(uuid)) return res.send("Invalid validation code");
 
   const userId = await redis.get(uuid);
 
@@ -96,13 +90,8 @@ exports.getConfirmationEmail = async (req, res) => {
 exports.postResendConfirmation = async (req, res) => {
   const email = req.body.email;
 
-  // invalid email format - stop processing
-  const schema = yup.object().shape({
-    email: yup.string().min(4).max(100).email() // prettier-ignore
-  });
-
   try {
-    await schema.validate({ email }, { abortEarly: false });
+    await validateInput({ email });
   } catch (e) {
     return res.json(formatErrorMessage(e));
   }
@@ -127,9 +116,7 @@ exports.postResendConfirmation = async (req, res) => {
     ]);
   }
 
-  const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
-  const token = uuid();
-  await redis.set(token, user.id, "ex", ONE_DAY_IN_SECONDS);
+  const token = await createToken(user.id);
 
   const message = {
     from: "Your Name <your@email.com>",
@@ -151,14 +138,8 @@ exports.postResendConfirmation = async (req, res) => {
 exports.postLogin = async (req, res) => {
   const { email, password } = req.body;
 
-  // don't even botter the DB if conditions not met
-  const schema = yup.object().shape({
-    email: yup.string().min(4).max(100).email(), // prettier-ignore
-    password: yup.string().min(6).max(40) // prettier-ignore
-  });
-
   try {
-    await schema.validate({ email, password }, { abortEarly: false });
+    await validateInput({ email, password });
   } catch (e) {
     return res.json(formatErrorMessage(e));
   }
@@ -216,13 +197,8 @@ exports.postLogout = async (req, res) => {
 exports.postForgotPassword = async (req, res) => {
   const email = req.body.email;
 
-  // don't even botter the DB if conditions not met
-  const schema = yup.object().shape({
-    email: yup.string().min(4).max(100).email() // prettier-ignore
-  });
-
   try {
-    await schema.validate({ email }, { abortEarly: false });
+    await validateInput({ email });
   } catch (e) {
     return res.json(formatErrorMessage(e));
   }
@@ -238,9 +214,7 @@ exports.postForgotPassword = async (req, res) => {
     ]);
   }
 
-  const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
-  const token = uuid();
-  await redis.set(token, user.id, "ex", ONE_DAY_IN_SECONDS);
+  const token = await createToken(user.id);
 
   const message = {
     from: "Your Name <your@email.com>",
@@ -260,21 +234,14 @@ exports.postForgotPassword = async (req, res) => {
  * Verify password reset token and update password
  */
 exports.postResetPassword = async (req, res) => {
-  //check uuid
   const uuid = req.params.id;
-  const isValidUUID = uuidValidate(uuid);
 
-  if (!isValidUUID) return res.send("Invalid password reset token");
-
-  // check new password
-  const signupSchema = yup.object().shape({
-    password: yup.string().min(6).max(40) // prettier-ignore
-  });
+  if (!isValidUUID(uuid)) return res.send("Invalid password reset token");
 
   const password = req.body.password;
 
   try {
-    await signupSchema.validate({ password }, { abortEarly: false });
+    await validateInput({ password });
   } catch (e) {
     return res.json(formatErrorMessage(e));
   }
