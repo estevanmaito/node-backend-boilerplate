@@ -259,4 +259,37 @@ exports.postForgotPassword = async (req, res) => {
 /** POST /reset-password/:id
  * Verify password reset token and update password
  */
-exports.postResetPassword = async (req, res) => {};
+exports.postResetPassword = async (req, res) => {
+  //check uuid
+  const uuid = req.params.id;
+  const isValidUUID = uuidValidate(uuid);
+
+  if (!isValidUUID) return res.send("Invalid password reset token");
+
+  // check new password
+  const signupSchema = yup.object().shape({
+    password: yup.string().min(6).max(40) // prettier-ignore
+  });
+
+  const password = req.body.password;
+
+  try {
+    await signupSchema.validate({ password }, { abortEarly: false });
+  } catch (e) {
+    return res.json(formatErrorMessage(e));
+  }
+
+  const userId = await redis.get(uuid);
+
+  if (userId) {
+    const user = await User.findById(userId);
+    user.password = password;
+    user.save();
+    await redis.del(uuid);
+    return res.send("New password generated");
+  } else {
+    return res.send(
+      "Invalid or expired password reset token. Generate a new one."
+    );
+  }
+};
