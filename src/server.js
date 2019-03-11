@@ -44,6 +44,11 @@ app.post("/logout", userController.postLogout);
 app.post("/forgot-password", userController.postForgotPassword);
 app.post("/reset-password/:id", userController.postResetPassword);
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong, try again later.");
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Server running at http://localhost:${process.env.PORT}`);
 });
