@@ -33,5 +33,8 @@
 - oAuth
 - use process manager to restart the server (pm2?)
 - use init system to restart the process manager
+- https
+- http/2
+- docker non root user
 
 https://expressjs.com/en/advanced/best-practice-performance.html
